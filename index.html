@@ -28,8 +28,10 @@
                             <input id="job1-company" type="text" required placeholder="Company A" class="w-full border rounded p-2">
                         </div>
                         <div>
-                            <label for="job1-salary" class="block text-sm font-medium mb-1">Base Salary ($/year)</label>
-                            <input id="job1-salary" type="number" min="0" step="0.01" required placeholder="100000" class="w-full border rounded p-2">
+                            <label for="job1-salary" class="block text-sm font-medium mb-1">Gross Base Salary ($/year)</label>
+                            <input id="job1-salary" type="number" min="0" max="500000" step="0.01" required placeholder="100000" class="w-full border rounded p-2">
+                            <input id="job1-salary-slider" type="range" min="0" max="500000" step="1000" value="0" aria-label="Job offer 1 gross annual salary slider" class="w-full mt-2">
+                            <p class="text-xs text-slate-600">Slider: <span id="job1-salary-slider-value">$0</span> (gross annual salary)</p>
                         </div>
                         <div>
                             <label for="job1-bonus" class="block text-sm font-medium mb-1">Annual Bonus ($)</label>
@@ -67,6 +69,21 @@
                             <label for="job1-state-rate" class="block text-sm font-medium mb-1">Assumed Effective State Tax Rate (%)</label>
                             <input id="job1-state-rate" type="number" min="0" max="40" step="0.1" value="0" required class="w-full border rounded p-2">
                         </div>
+                        <div>
+                            <label for="job1-annual-raise" class="block text-sm font-medium mb-1">Expected Annual Raise (%)</label>
+                            <input id="job1-annual-raise" type="number" min="0" max="100" step="0.1" value="3" required class="w-full border rounded p-2">
+                        </div>
+                        <div>
+                            <p class="block text-sm font-medium mb-1">Additional Service-Year Raises</p>
+                            <div id="job1-milestones" class="space-y-2"></div>
+                            <button type="button" onclick="addMilestone(1)" class="text-sm text-blue-700 underline mt-2">Add service-year raise</button>
+                            <p class="text-xs text-slate-600 mt-1">Each milestone is a one-time base-salary increase that continues from that service year onward.</p>
+                        </div>
+                        <details>
+                            <summary class="text-sm font-medium cursor-pointer">Manual year-by-year raises (optional)</summary>
+                            <p class="text-xs text-slate-600 mt-2">Enter a raise percentage to override the expected annual raise for that year. A service-year raise still applies.</p>
+                            <div id="job1-manual-raises" class="space-y-2 mt-2"></div>
+                        </details>
                     </fieldset>
 
                     <fieldset class="border rounded-md p-4 space-y-4 bg-slate-50/50">
@@ -80,8 +97,10 @@
                             <input id="job2-company" type="text" required placeholder="Company B" class="w-full border rounded p-2">
                         </div>
                         <div>
-                            <label for="job2-salary" class="block text-sm font-medium mb-1">Base Salary ($/year)</label>
-                            <input id="job2-salary" type="number" min="0" step="0.01" required placeholder="160000" class="w-full border rounded p-2">
+                            <label for="job2-salary" class="block text-sm font-medium mb-1">Gross Base Salary ($/year)</label>
+                            <input id="job2-salary" type="number" min="0" max="500000" step="0.01" required placeholder="160000" class="w-full border rounded p-2">
+                            <input id="job2-salary-slider" type="range" min="0" max="500000" step="1000" value="0" aria-label="Job offer 2 gross annual salary slider" class="w-full mt-2">
+                            <p class="text-xs text-slate-600">Slider: <span id="job2-salary-slider-value">$0</span> (gross annual salary)</p>
                         </div>
                         <div>
                             <label for="job2-bonus" class="block text-sm font-medium mb-1">Annual Bonus ($)</label>
@@ -119,6 +138,21 @@
                             <label for="job2-state-rate" class="block text-sm font-medium mb-1">Assumed Effective State Tax Rate (%)</label>
                             <input id="job2-state-rate" type="number" min="0" max="40" step="0.1" value="0" required class="w-full border rounded p-2">
                         </div>
+                        <div>
+                            <label for="job2-annual-raise" class="block text-sm font-medium mb-1">Expected Annual Raise (%)</label>
+                            <input id="job2-annual-raise" type="number" min="0" max="100" step="0.1" value="3" required class="w-full border rounded p-2">
+                        </div>
+                        <div>
+                            <p class="block text-sm font-medium mb-1">Additional Service-Year Raises</p>
+                            <div id="job2-milestones" class="space-y-2"></div>
+                            <button type="button" onclick="addMilestone(2)" class="text-sm text-blue-700 underline mt-2">Add service-year raise</button>
+                            <p class="text-xs text-slate-600 mt-1">Each milestone is a one-time base-salary increase that continues from that service year onward.</p>
+                        </div>
+                        <details>
+                            <summary class="text-sm font-medium cursor-pointer">Manual year-by-year raises (optional)</summary>
+                            <p class="text-xs text-slate-600 mt-2">Enter a raise percentage to override the expected annual raise for that year. A service-year raise still applies.</p>
+                            <div id="job2-manual-raises" class="space-y-2 mt-2"></div>
+                        </details>
                     </fieldset>
                 </div>
 
@@ -127,6 +161,29 @@
                     State rates are rough editable assumptions, not exact state tax calculations.
                     Local taxes, credits, benefits, retirement deductions, and special stock rules are excluded.
                 </p>
+                <section class="border rounded-md p-4 space-y-3" aria-labelledby="live-projection-heading">
+                    <div>
+                        <h3 id="live-projection-heading" class="text-lg font-semibold">Live Five-Year Take-Home Projection</h3>
+                        <p class="text-sm text-slate-600">Updates as you edit salary and raise assumptions. Raises are estimates, not guaranteed employer offers.</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse text-left text-sm">
+                            <thead>
+                                <tr class="bg-slate-100">
+                                    <th class="p-2 border">Service Year</th>
+                                    <th class="p-2 border">Offer 1 Gross Total Comp.</th>
+                                    <th class="p-2 border">Offer 1 Est. Annual Take-Home</th>
+                                    <th class="p-2 border">Offer 2 Gross Total Comp.</th>
+                                    <th class="p-2 border">Offer 2 Est. Annual Take-Home</th>
+                                </tr>
+                            </thead>
+                            <tbody id="live-projection-rows" aria-live="polite">
+                                <tr><td colspan="5" class="p-3 border text-slate-600">Enter both salaries to see the live projection.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-xs text-slate-600">Projected raises change base salary; bonus and stock stay at the entered annual amounts. Take-home estimates reuse the same 2026 tax assumptions for every year.</p>
+                </section>
                 <div class="text-right">
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded">
                         Generate Comparison
@@ -177,11 +234,109 @@
 
     <script src="calculations.js"></script>
     <script>
+        const projectionYears = 5;
+        let milestoneCounter = 0;
+
         // sample effective state tax rates for demonstrating comparisons
         // these are assumptions, not state statutory tax rates
         const sampleStateRates = {
             WA: 0, CA: 6, NY: 5, OR: 8, IL: 4.95, TX: 0, FL: 0, NV: 0
         };
+
+        function syncSalarySlider(jobNumber, source) {
+            const salaryInput = document.getElementById(`job${jobNumber}-salary`);
+            const slider = document.getElementById(`job${jobNumber}-salary-slider`);
+            if (source === 'slider') {
+                salaryInput.value = slider.value;
+            } else {
+                const salary = Number(salaryInput.value);
+                slider.value = salaryInput.value === '' || !Number.isFinite(salary)
+                    ? '0'
+                    : String(Math.max(0, Math.min(500000, salary)));
+            }
+
+            document.getElementById(`job${jobNumber}-salary-slider-value`).textContent =
+                formatCurrency(Number(slider.value));
+            updateLiveProjection();
+        }
+
+        function addMilestone(jobNumber) {
+            milestoneCounter += 1;
+            const row = document.createElement('div');
+            row.dataset.milestone = '';
+            row.className = 'grid grid-cols-[1fr_1fr_auto] gap-2 items-end';
+
+            const yearField = document.createElement('div');
+            const yearLabel = document.createElement('label');
+            yearLabel.htmlFor = `job${jobNumber}-milestone-${milestoneCounter}-year`;
+            yearLabel.className = 'block text-xs font-medium mb-1';
+            yearLabel.textContent = 'Service year';
+            const yearInput = document.createElement('input');
+            yearInput.id = yearLabel.htmlFor;
+            yearInput.type = 'number';
+            yearInput.min = '1';
+            yearInput.max = String(projectionYears);
+            yearInput.step = '1';
+            yearInput.value = String(projectionYears);
+            yearInput.dataset.milestoneYear = '';
+            yearInput.className = 'w-full border rounded p-2';
+            yearField.append(yearLabel, yearInput);
+
+            const raiseField = document.createElement('div');
+            const raiseLabel = document.createElement('label');
+            raiseLabel.htmlFor = `job${jobNumber}-milestone-${milestoneCounter}-percent`;
+            raiseLabel.className = 'block text-xs font-medium mb-1';
+            raiseLabel.textContent = 'Additional raise (%)';
+            const raiseInput = document.createElement('input');
+            raiseInput.id = raiseLabel.htmlFor;
+            raiseInput.type = 'number';
+            raiseInput.min = '0';
+            raiseInput.max = '100';
+            raiseInput.step = '0.1';
+            raiseInput.placeholder = 'e.g. 5';
+            raiseInput.dataset.milestonePercent = '';
+            raiseInput.className = 'w-full border rounded p-2';
+            raiseField.append(raiseLabel, raiseInput);
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.textContent = 'Remove';
+            removeButton.setAttribute('aria-label', 'Remove service-year raise');
+            removeButton.className = 'text-sm text-slate-600 underline p-2';
+            removeButton.addEventListener('click', () => {
+                row.remove();
+                updateLiveProjection();
+            });
+
+            row.append(yearField, raiseField, removeButton);
+            document.getElementById(`job${jobNumber}-milestones`).append(row);
+            updateLiveProjection();
+        }
+
+        function initializeRaiseControls() {
+            for (let jobNumber = 1; jobNumber <= 2; jobNumber += 1) {
+                const manualRaises = document.getElementById(`job${jobNumber}-manual-raises`);
+                for (let year = 1; year <= projectionYears; year += 1) {
+                    const row = document.createElement('div');
+                    const label = document.createElement('label');
+                    label.htmlFor = `job${jobNumber}-manual-raise-${year}`;
+                    label.className = 'block text-xs font-medium mb-1';
+                    label.textContent = `Year ${year} raise override (%)`;
+
+                    const input = document.createElement('input');
+                    input.id = label.htmlFor;
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '100';
+                    input.step = '0.1';
+                    input.placeholder = 'Use expected annual raise';
+                    input.className = 'w-full border rounded p-2';
+
+                    row.append(label, input);
+                    manualRaises.append(row);
+                }
+            }
+        }
 
         // update the editable state tax assumption when the user changes states
         function updateStateRate(jobNumber) {
@@ -205,6 +360,34 @@
             };
         }
 
+        function readRaiseSettings(jobNumber) {
+            const milestones = Array.from(
+                document.getElementById(`job${jobNumber}-milestones`).querySelectorAll('[data-milestone]')
+            ).map((row) => ({
+                year: Number(row.querySelector('[data-milestone-year]').value),
+                raisePercent: Number(row.querySelector('[data-milestone-percent]').value)
+            })).filter((milestone) =>
+                Number.isInteger(milestone.year) &&
+                milestone.year >= 1 &&
+                milestone.year <= projectionYears &&
+                milestone.raisePercent > 0
+            );
+
+            const manualRaises = {};
+            for (let year = 1; year <= projectionYears; year += 1) {
+                const value = document.getElementById(`job${jobNumber}-manual-raise-${year}`).value;
+                if (value !== '') {
+                    manualRaises[year] = Number(value);
+                }
+            }
+
+            return {
+                annualRaisePercent: Number(document.getElementById(`job${jobNumber}-annual-raise`).value),
+                milestones,
+                manualRaises
+            };
+        }
+
         // format numbers for the comparison table
         function formatCurrency(amount, decimals = 0) {
             return new Intl.NumberFormat('en-US', {
@@ -212,6 +395,75 @@
                 minimumFractionDigits: decimals,
                 maximumFractionDigits: decimals
             }).format(amount);
+        }
+
+        function appendProjectionCell(row, text) {
+            const cell = document.createElement('td');
+            cell.className = 'p-2 border';
+            cell.textContent = text;
+            row.append(cell);
+        }
+
+        function updateLiveProjection() {
+            const rows = document.getElementById('live-projection-rows');
+            const salaryInputs = [1, 2].map((jobNumber) =>
+                document.getElementById(`job${jobNumber}-salary`)
+            );
+
+            if (salaryInputs.some((input) => input.value === '')) {
+                rows.innerHTML = '<tr><td colspan="5" class="p-3 border text-slate-600">Enter both salaries to see the live projection.</td></tr>';
+                return;
+            }
+
+            const projectionInputs = [];
+            for (let jobNumber = 1; jobNumber <= 2; jobNumber += 1) {
+                projectionInputs.push(
+                    document.getElementById(`job${jobNumber}-salary`),
+                    document.getElementById(`job${jobNumber}-bonus`),
+                    document.getElementById(`job${jobNumber}-stock`),
+                    document.getElementById(`job${jobNumber}-state-rate`),
+                    document.getElementById(`job${jobNumber}-annual-raise`),
+                    ...document.getElementById(`job${jobNumber}-milestones`).querySelectorAll('input'),
+                    ...document.getElementById(`job${jobNumber}-manual-raises`).querySelectorAll('input')
+                );
+            }
+
+            if (projectionInputs.some((input) => !input.validity.valid)) {
+                rows.innerHTML = '<tr><td colspan="5" class="p-3 border text-slate-600">Correct invalid salary, tax, or raise values to see the projection.</td></tr>';
+                return;
+            }
+
+            const jobs = [1, 2].map((jobNumber) => {
+                const job = readJob(jobNumber);
+                const raiseSettings = readRaiseSettings(jobNumber);
+                return {
+                    stateRate: job.stateRate,
+                    projection: calculateRaiseProjection(
+                        job.salary,
+                        job.bonus,
+                        job.stock,
+                        raiseSettings.annualRaisePercent,
+                        raiseSettings.milestones,
+                        raiseSettings.manualRaises,
+                        projectionYears
+                    )
+                };
+            });
+
+            const projectedRows = jobs[0].projection.map((offer1, index) => {
+                const offer2 = jobs[1].projection[index];
+                const row = document.createElement('tr');
+                if (offer1.year % 2 === 0) {
+                    row.className = 'bg-slate-50';
+                }
+                appendProjectionCell(row, offer1.year === 0 ? 'Now' : `Year ${offer1.year}`);
+                appendProjectionCell(row, formatCurrency(offer1.totalCompensation));
+                appendProjectionCell(row, formatCurrency(calculateAfterTaxIncome(offer1.totalCompensation, jobs[0].stateRate)));
+                appendProjectionCell(row, formatCurrency(offer2.totalCompensation));
+                appendProjectionCell(row, formatCurrency(calculateAfterTaxIncome(offer2.totalCompensation, jobs[1].stateRate)));
+                return row;
+            });
+            rows.replaceChildren(...projectedRows);
         }
 
         // show whether job 1 or job 2 offers more of a metric
@@ -223,6 +475,23 @@
             const betterJob = difference > 0 ? 'Job 2' : 'Job 1';
             return `${label}: ${betterJob} offers ${formatValue(Math.abs(difference))} more.`;
         }
+
+        initializeRaiseControls();
+        for (let jobNumber = 1; jobNumber <= 2; jobNumber += 1) {
+            syncSalarySlider(jobNumber, 'number');
+        }
+        document.querySelector('form').addEventListener('input', (event) => {
+            const sliderMatch = event.target.id.match(/^job([12])-salary-slider$/);
+            const salaryMatch = event.target.id.match(/^job([12])-salary$/);
+            if (sliderMatch) {
+                syncSalarySlider(Number(sliderMatch[1]), 'slider');
+            } else if (salaryMatch) {
+                syncSalarySlider(Number(salaryMatch[1]), 'number');
+            } else {
+                updateLiveProjection();
+            }
+        });
+        document.querySelector('form').addEventListener('change', updateLiveProjection);
 
         // read both job offers and calculate the results
         function handleFormSubmit(event) {
