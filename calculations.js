@@ -66,3 +66,32 @@ function calculateAfterTaxIncome(annualCompensation, stateRatePercent) {
     const stateTax = annualCompensation * (stateRatePercent / 100);
     return Math.max(0, annualCompensation - federalTax - payrollTax - stateTax);
 }
+
+// project base salary, applying yearly raises and any service-year milestones
+function calculateRaiseProjection(baseSalary, bonus, stock, annualRaisePercent, serviceMilestones, manualRaises, years) {
+    let projectedSalary = baseSalary;
+    const projection = [{
+        year: 0,
+        baseSalary: projectedSalary,
+        totalCompensation: projectedSalary + bonus + stock
+    }];
+
+    for (let year = 1; year <= years; year += 1) {
+        const raisePercent = manualRaises[year] ?? annualRaisePercent;
+        projectedSalary *= 1 + (raisePercent / 100);
+
+        for (const milestone of serviceMilestones) {
+            if (milestone.year === year) {
+                projectedSalary *= 1 + (milestone.raisePercent / 100);
+            }
+        }
+
+        projection.push({
+            year,
+            baseSalary: projectedSalary,
+            totalCompensation: projectedSalary + bonus + stock
+        });
+    }
+
+    return projection;
+}
