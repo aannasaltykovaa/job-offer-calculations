@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Offer Evaluation Tool - MVP</title>
+  <!-- Tailwind CSS CDN for minimal, responsive layout styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen p-4 md:p-8">
+
+  <div class="max-w-5xl mx-auto space-y-8">
+    
+    <!-- HEADER -->
+    <header class="text-center border-b pb-4">
+      <h1 class="text-3xl font-bold text-slate-900">Job Offer Evaluation Tool</h1>
+      <p class="text-slate-600 text-sm mt-1">Sprint 1 Barebones MVP — Compare 2 Job Offers Side-by-Side</p>
+    </header>
+
+    <!-- INPUT FORM SECTION -->
+    <section id="form-section" class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+      <h2 class="text-xl font-semibold mb-4 text-slate-800">Enter Job Details</h2>
+      
+      <form id="job-form" onsubmit="handleFormSubmit(event)" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- JOB OFFER 1 INPUTS -->
+          <fieldset class="border border-slate-200 p-4 rounded-md bg-slate-50/50 space-y-4">
+            <legend class="font-bold text-blue-600 px-2">Job Offer #1</legend>
+            
+            <div>
+              <label for="job1-title" class="block text-sm font-medium mb-1">Job Title</label>
+              <input type="text" id="job1-title" required placeholder="e.g. Systems Engineer" class="w-full border rounded p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+            
+            <div>
+              <label for="job1-company" class="block text-sm font-medium mb-1">Company Name</label>
+              <input type="text" id="job1-company" required placeholder="e.g. CloudTech Inc." class="w-full border rounded p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+
+            <div>
+              <label for="job1-salary" class="block text-sm font-medium mb-1">Base Salary ($/yr)</label>
+              <input type="number" id="job1-salary" min="0" required placeholder="150000" class="w-full border rounded p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+
+            <div>
+              <label for="job1-worktype" class="block text-sm font-medium mb-1">Work Setup</label>
+              <select id="job1-worktype" class="w-full border rounded p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                <option value="Remote">Remote</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="On-site">On-site</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="job1-pto" class="block text-sm font-medium mb-1">PTO Days / Year</label>
+              <input type="number" id="job1-pto" min="0" required placeholder="15" class="w-full border rounded p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+          </fieldset>
+
+          <!-- JOB OFFER 2 INPUTS -->
+          <fieldset class="border border-slate-200 p-4 rounded-md bg-slate-50/50 space-y-4">
+            <legend class="font-bold text-emerald-600 px-2">Job Offer #2</legend>
+            
+            <div>
+              <label for="job2-title" class="block text-sm font-medium mb-1">Job Title</label>
+              <input type="text" id="job2-title" required placeholder="e.g. DevOps Specialist" class="w-full border rounded p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+
+            <div>
+              <label for="job2-company" class="block text-sm font-medium mb-1">Company Name</label>
+              <input type="text" id="job2-company" required placeholder="e.g. DataCorp" class="w-full border rounded p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+
+            <div>
+              <label for="job2-salary" class="block text-sm font-medium mb-1">Base Salary ($/yr)</label>
+              <input type="number" id="job2-salary" min="0" required placeholder="160000" class="w-full border rounded p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+
+            <div>
+              <label for="job2-worktype" class="block text-sm font-medium mb-1">Work Setup</label>
+              <select id="job2-worktype" class="w-full border rounded p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                <option value="Remote">Remote</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="On-site">On-site</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="job2-pto" class="block text-sm font-medium mb-1">PTO Days / Year</label>
+              <input type="number" id="job2-pto" min="0" required placeholder="20" class="w-full border rounded p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+          </fieldset>
+
+        </div>
+
+        <div class="text-right">
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded shadow transition">
+            Generate Comparison
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- OUTPUT / COMPARISON TABLE SECTION (Hidden by default) -->
+    <section id="comparison-section" class="hidden bg-white p-6 rounded-lg shadow-sm border border-slate-200 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h2 class="text-xl font-semibold text-slate-800">Side-by-Side Comparison</h2>
+        <button onclick="resetComparison()" class="text-sm text-slate-500 hover:text-slate-800 underline">
+          Edit / Clear
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse border border-slate-200">
+          <thead>
+            <tr class="bg-slate-100">
+              <th class="p-3 border border-slate-200 text-slate-600 w-1/3">Metric</th>
+              <th id="out-job1-header" class="p-3 border border-slate-200 text-blue-700 font-bold w-1/3">Job 1</th>
+              <th id="out-job2-header" class="p-3 border border-slate-200 text-emerald-700 font-bold w-1/3">Job 2</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="p-3 border border-slate-200 font-medium">Company</td>
+              <td id="out-job1-company" class="p-3 border border-slate-200"></td>
+              <td id="out-job2-company" class="p-3 border border-slate-200"></td>
+            </tr>
+            <tr class="bg-slate-50/50">
+              <td class="p-3 border border-slate-200 font-medium">Base Salary</td>
+              <td id="out-job1-salary" class="p-3 border border-slate-200 font-semibold"></td>
+              <td id="out-job2-salary" class="p-3 border border-slate-200 font-semibold"></td>
+            </tr>
+            <tr>
+              <td class="p-3 border border-slate-200 font-medium">Work Setup</td>
+              <td id="out-job1-worktype" class="p-3 border border-slate-200"></td>
+              <td id="out-job2-worktype" class="p-3 border border-slate-200"></td>
+            </tr>
+            <tr class="bg-slate-50/50">
+              <td class="p-3 border border-slate-200 font-medium">Paid Time Off</td>
+              <td id="out-job1-pto" class="p-3 border border-slate-200"></td>
+              <td id="out-job2-pto" class="p-3 border border-slate-200"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    /**
+     * Form Submit Handler: Reads inputs, populates the output table, and displays it.
+     */
+    function handleFormSubmit(event) {
+      // Prevent standard browser page reload on form submission
+      event.preventDefault();
+
+      // Extract values for Job 1
+      const job1 = {
+        title: document.getElementById('job1-title').value,
+        company: document.getElementById('job1-company').value,
+        salary: Number(document.getElementById('job1-salary').value),
+        worktype: document.getElementById('job1-worktype').value,
+        pto: document.getElementById('job1-pto').value
+      };
+
+      // Extract values for Job 2
+      const job2 = {
+        title: document.getElementById('job2-title').value,
+        company: document.getElementById('job2-company').value,
+        salary: Number(document.getElementById('job2-salary').value),
+        worktype: document.getElementById('job2-worktype').value,
+        pto: document.getElementById('job2-pto').value
+      };
+
+      // Format currency for clean visual output
+      const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
+      };
+
+      // Inject data into the comparison view table
+      document.getElementById('out-job1-header').innerText = job1.title || 'Job 1';
+      document.getElementById('out-job1-company').innerText = job1.company;
+      document.getElementById('out-job1-salary').innerText = formatCurrency(job1.salary);
+      document.getElementById('out-job1-worktype').innerText = job1.worktype;
+      document.getElementById('out-job1-pto').innerText = `${job1.pto} Days`;
+
+      document.getElementById('out-job2-header').innerText = job2.title || 'Job 2';
+      document.getElementById('out-job2-company').innerText = job2.company;
+      document.getElementById('out-job2-salary').innerText = formatCurrency(job2.salary);
+      document.getElementById('out-job2-worktype').innerText = job2.worktype;
+      document.getElementById('out-job2-pto').innerText = `${job2.pto} Days`;
+
+      // Reveal the output section
+      document.getElementById('comparison-section').classList.remove('hidden');
+
+      // Scroll smoothly down to the comparison output
+      document.getElementById('comparison-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /**
+     * Reset Handler: Hides the comparison view.
+     */
+    function resetComparison() {
+      document.getElementById('comparison-section').classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
